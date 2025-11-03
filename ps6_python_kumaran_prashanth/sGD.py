@@ -33,10 +33,10 @@ def sGD(input_layer_size, hidden_layer_size, num_labels, X_train, y_train, lamb,
             Delta1 = d2@x_bias.T
 
             D2 = Delta2
-            D2[:, 1:] = Delta2[:, 1:] + (lamb/m)*(Theta2[:, 1:])
+            D2[:, 1:] = Delta2[:, 1:] + (lamb)*(Theta2[:, 1:])
 
             D1 = Delta1
-            D1[:, 1:] = Delta1[:, 1:] + (lamb/m)*(Theta1[:, 1:])
+            D1[:, 1:] = Delta1[:, 1:] + (lamb)*(Theta1[:, 1:])
 
             Theta2 = Theta2 - alpha*D2
             Theta1 = Theta1 - alpha*D1
