@@ -37,23 +37,23 @@ plt.savefig("output/ps6-0-a-1.png")
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=(2/15))
 
 
-# # 1: Forward Propagation
-# weights = scipy.io.loadmat('input/HW6_weights_3_full.mat')
-# Theta1 = np.array(weights['Theta1'])
-# Theta2 = np.array(weights['Theta2'])
+# 1: Forward Propagation
+weights = scipy.io.loadmat('input/HW6_weights_3_full.mat')
+Theta1 = np.array(weights['Theta1'])
+Theta2 = np.array(weights['Theta2'])
 
-# p, h_x = predict(Theta1, Theta2, X)
+p, h_x = predict(Theta1, Theta2, X)
 
-# print("1b) Accuracy: ",  accuracy_score(p, y))
+print("1b) Accuracy: ",  accuracy_score(p, y))
 
 
-# # 2: Cost Function
-# print("2b) Cost:")
-# lamb = [0.1, 1, 2]
-# J = [0 for i in range(len(lamb))]
-# for i in range(len(lamb)):
-#     J[i] = nnCost(Theta1, Theta2, X, y, 3, lamb[i])
-#     print('lambda = ' , lamb[i], ':' , 'J = ', J[i])
+# 2: Cost Function
+print("2b) Cost:")
+lamb = [0.1, 1, 2]
+J = [0 for i in range(len(lamb))]
+for i in range(len(lamb)):
+    J[i] = nnCost(Theta1, Theta2, X, y, 3, lamb[i])
+    print('lambda = ' , lamb[i], ':' , 'J = ', J[i])
 
 
 # 3: Sigmoid Gradient
