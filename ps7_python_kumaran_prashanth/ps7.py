@@ -12,6 +12,7 @@ from keras.preprocessing import image
 from os import listdir
 from PIL import Image
 from enum import Enum
+import cv2
 
 
 # class Vehicle(Enum):
@@ -143,3 +144,66 @@ if acc_list:
     print(f'accuracy: {acc_list[-1]:.4f}')
 
 
+
+
+def sliding_window(img, step_size, window_size):
+    """Generator that yields (x, y, window) for each step."""
+    for y in range(0, img.shape[0] - window_size[1], step_size):
+        for x in range(0, img.shape[1] - window_size[0], step_size):
+            yield (x, y, img[y:y + window_size[1], x:x + window_size[0], :])
+
+def preprocess_window(window):
+    """Preprocess to match training conditions."""
+    window = window.astype(np.float64)
+    window -= np.mean(window)
+    window /= np.std(window) + 1e-8
+    return window
+
+def detect_object(model, img, window_size=(64, 64), step_size=32, threshold=0.8):
+    """Find only the highest-confidence detection above threshold."""
+    H, W = img.shape[:2]
+    h, w = window_size
+
+    # Calculate how many windows total
+    num_x = (W - w) // step_size + 1
+    num_y = (H - h) // step_size + 1
+    total_windows = num_x * num_y
+    
+    best_box = None
+    best_score = -1.0
+    count = 0
+    # Slide window
+    for (x, y, window) in sliding_window(img, step_size, window_size):
+        if window.shape[0] != window_size[1] or window.shape[1] != window_size[0]:
+            continue  # skip incomplete windows
+        
+        patch = preprocess_window(window)
+        patch = np.expand_dims(patch, axis=0)
+        pred = model.predict(patch, verbose=0)[0][0]
+        print(f"Window ({count}/{total_windows}) Prediction: {pred:.4f}")
+        if pred > best_score:
+            best_score = pred
+            best_box = (x, y, window_size[0], window_size[1])
+        count += 1
+    # Draw only if score exceeds threshold
+    img_copy = img.copy().astype(np.uint8)
+    if best_score >= threshold and best_box is not None:
+        x, y, w, h = best_box
+        cv2.rectangle(img_copy, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        cv2.putText(img_copy, f'{best_score:.2f}', (x, y - 5),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+    
+    return img_copy, best_score
+
+test_images, test_labels = load_data('./input/p2/test_imgs', 2)
+
+K = 1
+for img in test_images:
+    print("Processing Image ", K)
+    img, score = detect_object(model, img, window_size=(32, 96), step_size=4, threshold=0.7)
+    rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    plt.figure()
+    plt.axis('off')
+    plt.imshow(rgb_img)
+    plt.savefig(f'output/ps7-2-c-{K}.png')
+    K += 1
