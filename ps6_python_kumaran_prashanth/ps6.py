@@ -63,9 +63,20 @@ print("3) Gradient = ", g_prime)
 
 
 # 4: Back Propagation
+
+Theta1, Theta2, cost, accuracy = sGD(1024, 40, 3, X_train, y_train, 0.1, 0.001, 50)
+iterations = [i for i in range(len(cost))]
+p4e1 = plt.figure()
+plt.xlabel('Number of Iterations')
+plt.ylabel('Cost')
+plt.plot(iterations, cost)
+plt.legend()
+p4e1.savefig("output/ps6-4-e-1.png")
+
 lambdas = [0.01, 0.1, 0.2, 1]
 for lamb in lambdas:
     Theta1, Theta2, cost, accuracy = sGD(1024, 40, 3, X_train, y_train, lamb, 0.001, 50)
     p, h_x = predict(Theta1, Theta2, X_test)
     testCost = nnCost(Theta1, Theta2, X_test, y_test, 3, lamb)
     print("Lambda = ", lamb, "Testing Accuracy = ",  accuracy_score(p, y_test), "Testing Cost = ", testCost)
+
